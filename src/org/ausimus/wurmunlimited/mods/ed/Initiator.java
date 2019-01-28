@@ -5,21 +5,30 @@ package org.ausimus.wurmunlimited.mods.ed;
 import com.wurmonline.server.MiscConstants;
 import com.wurmonline.server.creatures.Communicator;
 import com.wurmonline.server.players.Player;
+import org.ausimus.wurmunlimited.mods.ed.actions.ActionsInit;
 import org.gotti.wurmunlimited.modloader.interfaces.*;
+import org.gotti.wurmunlimited.modsupport.actions.ModActions;
 
 import java.io.IOException;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class Initiator implements WurmServerMod, ItemTemplatesCreatedListener, Configurable, Initable, PlayerMessageListener
+public class Initiator implements WurmServerMod, PreInitable, ItemTemplatesCreatedListener, Configurable, Initable, PlayerMessageListener, ServerStartedListener
 {
     public static boolean paintAll;
     private Logger logger = Logger.getLogger(Initiator.class.getName());
 
     @Override
+    public void onServerStarted()
+    {
+        new ActionsInit();
+    }
+
+    @Override
     public void preInit()
     {
+        ModActions.init();
         // new FixDestruct();
     }
 
@@ -46,6 +55,7 @@ public class Initiator implements WurmServerMod, ItemTemplatesCreatedListener, C
         if (msg.startsWith("/power"))
         {
             return execCommand(com);
+
         }
         return false;
     }
