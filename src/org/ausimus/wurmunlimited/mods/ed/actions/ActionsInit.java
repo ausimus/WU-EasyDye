@@ -7,6 +7,6 @@ public class ActionsInit
     public ActionsInit()
     {
         ModActions.registerAction(new ChangeColor());
-        ModActions.registerAction(new DyeIndestructable());
+        ModActions.registerAction(new CreateDye());
     }
 }

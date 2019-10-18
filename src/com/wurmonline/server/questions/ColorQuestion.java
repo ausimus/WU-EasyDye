@@ -12,20 +12,20 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public final class ColorQuestion extends Question implements ItemMaterials, MiscConstants
+public final class ColorQuestion extends Question implements ItemMaterials, MiscConstants, QuestionTypes
 {
-    private static Logger logger = Logger.getLogger(ColorQuestion.class.getName());
+    private Logger logger = Logger.getLogger(ColorQuestion.class.getName());
 
     public ColorQuestion(Creature aResponder, String aTitle, String aQuestion, long aTarget)
     {
-        super(aResponder, aTitle, aQuestion, QuestionTypes.ITEMDATA, aTarget);
+        super(aResponder, aTitle, aQuestion, 9999, aTarget);
     }
 
     public void sendQuestion()
     {
         StringBuilder buf = new StringBuilder(getBmlHeader());
-        short height = 300;
-        short width = 300;
+        short hw = 300;
+        int c = 200;
 
         try
         {
@@ -39,7 +39,6 @@ public final class ColorQuestion extends Question implements ItemMaterials, Misc
                 green = Integer.toString(WurmColor.getColorGreen(it.getColor()));
                 blue = Integer.toString(WurmColor.getColorBlue(it.getColor()));
             }
-
             buf.append("text{type='bold';text='Color 1'}");
             buf.append("harray{input{id='c_red'; maxchars='3'; text='").append(red).append("'}label{text='Red'}");
             buf.append("input{id='c_green'; maxchars='3'; text='").append(green).append("'}label{text='Green'}");
@@ -51,8 +50,7 @@ public final class ColorQuestion extends Question implements ItemMaterials, Misc
         }
 
         buf.append(createAnswerButton2());
-        getResponder().getCommunicator().sendBml(
-                width, height, true, true, buf.toString(), 200, 200, 200, title);
+        getResponder().getCommunicator().sendBml(hw, hw, true, true, buf.toString(), c, c, c, title);
     }
 
     public void answer(Properties answers)
@@ -61,7 +59,7 @@ public final class ColorQuestion extends Question implements ItemMaterials, Misc
         parseColor(this);
     }
 
-    private static void parseColor(ColorQuestion question)
+    private void parseColor(ColorQuestion question)
     {
         Creature responder = question.getResponder();
         long target = question.getTarget();

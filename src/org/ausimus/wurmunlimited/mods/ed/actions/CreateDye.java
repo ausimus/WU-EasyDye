@@ -7,24 +7,25 @@ import com.wurmonline.server.creatures.Creature;
 import com.wurmonline.server.items.Item;
 import com.wurmonline.server.items.ItemList;
 import com.wurmonline.server.items.ItemTypes;
-import com.wurmonline.server.questions.ColorQuestion;
 import java.util.Collections;
 import java.util.List;
+
+import com.wurmonline.shared.constants.ProtoConstants;
 import org.gotti.wurmunlimited.modloader.interfaces.WurmServerMod;
 import org.gotti.wurmunlimited.modsupport.actions.ActionPerformer;
 import org.gotti.wurmunlimited.modsupport.actions.BehaviourProvider;
 import org.gotti.wurmunlimited.modsupport.actions.ModAction;
 import org.gotti.wurmunlimited.modsupport.actions.ModActions;
 
-public class ChangeColor implements WurmServerMod, ItemTypes, MiscConstants, ModAction, BehaviourProvider, ActionPerformer
+public class CreateDye implements WurmServerMod, ItemTypes, MiscConstants, ModAction, BehaviourProvider, ActionPerformer, ProtoConstants
 {
-    private static short actionID;
-    private static ActionEntry actionEntry;
+    private short actionID;
+    private ActionEntry actionEntry;
 
-    ChangeColor()
+    CreateDye()
     {
         actionID = (short) ModActions.getNextActionId();
-        actionEntry = ActionEntry.createEntry(actionID, "Change Color", "", new int[0]);
+        actionEntry = ActionEntry.createEntry(actionID, "Create Dye", "creating", new int[0]);
         ModActions.registerAction(actionEntry);
     }
 
@@ -45,7 +46,7 @@ public class ChangeColor implements WurmServerMod, ItemTypes, MiscConstants, Mod
 
     public List<ActionEntry> getBehavioursFor(Creature performer, Item source, Item target)
     {
-        if (target.getTemplateId() == ItemList.dye)
+        if (target.getTemplateId() == ItemList.water)
             return Collections.singletonList(actionEntry);
         else
             return null;
@@ -64,11 +65,27 @@ public class ChangeColor implements WurmServerMod, ItemTypes, MiscConstants, Mod
 
     public boolean action(Action action, Creature performer, Item target, short num, float counter)
     {
-        if (target.getTemplateId() == ItemList.dye)
+        // Pre-conditions
+        // Only do this to water
+        if (target.getTemplateId() != ItemList.water)
         {
-            ColorQuestion q = new ColorQuestion(performer, "Colorizer", "Choose your color.", target.getWurmId());
-            q.sendQuestion();
+            performer.getCommunicator().sendNormalServerMessage(
+                    "The " + target.getName() + " is not water.", M_FAIL);
+            return true;
         }
+        // Water must be in players inventory.
+        else if (target.getTopParent() != performer.getInventory().getWurmId())
+        {
+            performer.getCommunicator().sendNormalServerMessage(
+                    "The " + target.getName() + " must be in your inventory in order to do that.", M_FAIL);
+            return true;
+        }
+        // End Pre-conditions
+
+        // No need to destroy and recreate, just convert (retain sizes, volume and shit).
+        target.setTemplateId(ItemList.dye);
+        target.setDescription("");
+        target.setName("dye");
         return true;
     }
 }
